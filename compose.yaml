@@ -1,0 +1,14 @@
+services:
+  tournament_engine:
+    build: .
+    container_name: tournament_engine
+    environment:
+      - MESSAGEQ_HOST=rabbitmq
+      - EXCHANGE_NAME=RIOT_CALLBACKS
+    networks:
+      - rabbitmq.docker
+
+networks:
+  rabbitmq.docker:
+    name: rabbitmq.docker
+    external: true
