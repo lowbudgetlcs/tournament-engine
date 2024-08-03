@@ -1,5 +1,10 @@
 package com.lowbudgetlcs
 
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MainKT")
+
 fun main() {
-    println("Welcome to the lowbudgetlcs tournament engine!")
+    logger.info("Starting tournament engine...")
+    RabbitMQBridge.listen()
 }
