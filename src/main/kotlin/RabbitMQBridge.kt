@@ -3,6 +3,7 @@ package com.lowbudgetlcs
 import com.rabbitmq.client.*
 import kotlinx.serialization.json.Json
 import com.lowbudgetlcs.MatchResult
+import kotlinx.coroutines.GlobalScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import org.slf4j.LoggerFactory
@@ -38,9 +39,7 @@ object RabbitMQBridge {
             val callback = DeliverCallback { _, delivery: Delivery ->
                 val message = String(delivery.body, charset("UTF-8"))
                 val result = Json.decodeFromString<MatchResult>(message)
-                launch {
-                    MatchHandler(result).recieveGameCallback()
-                }
+                MatchHandler(result).recieveGameCallback()
                 println(" [x] Received '" + delivery.envelope.routingKey + "':'" + message + "'")
             }
             basicConsume(queue, true, callback) { _ -> }

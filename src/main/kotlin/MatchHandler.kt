@@ -1,13 +1,14 @@
 package com.lowbudgetlcs
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 class MatchHandler(private val result: MatchResult) {
 
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MatchHandler")
 
-    fun recieveGameCallback() {
+    fun recieveGameCallback() = runBlocking {
         // Write result to database
         launch {
             saveResult()
