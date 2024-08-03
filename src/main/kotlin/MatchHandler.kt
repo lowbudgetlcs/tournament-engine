@@ -28,15 +28,15 @@ class MatchHandler(private val result: MatchResult) {
     }
 
     private fun saveResult() {
-        println("Hello from $result")
+        logger.debug("Saving result for game id #${result.metaData.id}")
     }
 
     private fun updateGame() {
-        logger.info("Updating game id: ${result.metaData.id}")
+        logger.info("Updating game id #${result.metaData.id}")
     }
 
     private fun updateSeries() {
-        logger.info("Updating series with id: ${result.metaData.series_id}")
+        logger.info("Updating series id #${result.metaData.series_id}")
     }
 
     private fun updateStandings() {

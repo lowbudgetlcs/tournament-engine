@@ -38,9 +38,14 @@ object RabbitMQBridge {
             queueBind(queue, EXCHANGE_NAME, "callback")
             val callback = DeliverCallback { _, delivery: Delivery ->
                 val message = String(delivery.body, charset("UTF-8"))
-                val result = Json.decodeFromString<MatchResult>(message)
-                MatchHandler(result).recieveGameCallback()
-                println(" [x] Received '" + delivery.envelope.routingKey + "':'" + message + "'")
+                try {
+                    val result = Json.decodeFromString<MatchResult>(message)
+                    MatchHandler(result).recieveGameCallback()
+                    println(" [x] Received '" + delivery.envelope.routingKey + "':'" + message + "'")
+                } catch (e: Exception) {
+                    logger.error("Error occured while parsing match result")
+                    logger.error(e.message)
+                }
             }
             basicConsume(queue, true, callback) { _ -> }
         }
