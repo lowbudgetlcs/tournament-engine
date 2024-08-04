@@ -1,14 +1,10 @@
 package com.lowbudgetlcs
 
 import com.rabbitmq.client.*
-import kotlinx.serialization.json.Json
-import com.lowbudgetlcs.MatchResult
-import kotlinx.coroutines.GlobalScope
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
-@OptIn(ExperimentalSerializationApi::class)
 object RabbitMQBridge {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.RabbitMQBridge")
     private const val EXCHANGE_NAME = "RIOT_CALLBACKS"

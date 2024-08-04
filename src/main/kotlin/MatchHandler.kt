@@ -8,12 +8,14 @@ class MatchHandler(private val result: MatchResult) {
 
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MatchHandler")
 
+    private val db = Db.db
+
     fun recieveGameCallback() = runBlocking {
         // Write result to database
         launch {
             saveResult()
         }
-        // Update game in database
+        // Update 1_init_tables.sqm in database
         launch {
             updateGame()
         }
@@ -28,18 +30,22 @@ class MatchHandler(private val result: MatchResult) {
     }
 
     private fun saveResult() {
-        logger.debug("Saving result for game id #${result.metaData.id}")
+        logger.info("Saving result...")
+        val resultQueries = db.resultQueries
+        logger.info(resultQueries.selectAll().executeAsList().toString())
     }
 
     private fun updateGame() {
-        logger.info("Updating game id #${result.metaData.id}")
+        logger.info("Updating game...")
+        val gameQueries = db.gameQueries
+        logger.info(gameQueries.selectAll().executeAsList().toString())
     }
 
-    private fun updateSeries() {
+    private suspend fun updateSeries() {
         logger.info("Updating series id #${result.metaData.series_id}")
     }
 
-    private fun updateStandings() {
+    private suspend fun updateStandings() {
         logger.info("Updating standings...")
     }
 }

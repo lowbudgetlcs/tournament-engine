@@ -2,9 +2,8 @@ services:
   tournament_engine:
     build: .
     container_name: tournament_engine
-    environment:
-      - MESSAGEQ_HOST=rabbitmq
-      - EXCHANGE_NAME=RIOT_CALLBACKS
+    env_file:
+      - .env
     networks:
       - rabbitmq.docker
 

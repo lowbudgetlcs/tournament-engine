@@ -1,0 +1,16 @@
+CREATE TABLE results (
+  id SERIAL PRIMARY KEY,
+  start_time BIGINT,
+  short_code CHAR(44) NOT NULL,
+  meta_data TEXT NOT NULL,
+  game_id INT,
+  game_name VARCHAR(60),
+  game_type VARCHAR(20),
+  game_map VARCHAR(20),
+  game_mode VARCHAR(20),
+  region VARCHAR(20)
+);
+
+selectAll:
+SELECT *
+FROM results;

@@ -1,0 +1,18 @@
+CREATE TABLE games (
+  id SERIAL PRIMARY KEY,
+  short_code CHAR(44) NOT NULL,
+  winner_id INT,
+  loser_id INT,
+  series_id INT NOT NULL,
+  result_id INT,
+  game_num INT NOT NULL
+  );
+
+  selectAll:
+  SELECT *
+  FROM games;
+
+  insert:
+  INSERT INTO games(short_code, winner_id, loser_id, series_id, result_id, game_num)
+  VALUES ?;
+
