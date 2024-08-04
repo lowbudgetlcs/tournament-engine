@@ -1,9 +1,11 @@
 package com.lowbudgetlcs
 
 import com.rabbitmq.client.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import com.lowbudgetlcs.data.*
 
 object RabbitMQBridge {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.RabbitMQBridge")
@@ -28,6 +30,7 @@ object RabbitMQBridge {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun listen() {
         channel.run {
             val queue = queueDeclare().queue
@@ -35,9 +38,9 @@ object RabbitMQBridge {
             val callback = DeliverCallback { _, delivery: Delivery ->
                 val message = String(delivery.body, charset("UTF-8"))
                 try {
-                    val result = Json.decodeFromString<MatchResult>(message)
+                    val result = Json.decodeFromString<Result>(message)
+                    logger.info("Recieved result on queue.")
                     MatchHandler(result).recieveGameCallback()
-                    println(" [x] Received '" + delivery.envelope.routingKey + "':'" + message + "'")
                 } catch (e: Exception) {
                     logger.error("Error occured while parsing match result")
                     logger.error(e.message)

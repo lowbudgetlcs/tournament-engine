@@ -2,13 +2,17 @@ package com.lowbudgetlcs
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import com.lowbudgetlcs.data.Result
+import com.lowbudgetlcs.data.ResultsAdapter
 
-class MatchHandler(private val result: MatchResult) {
+class MatchHandler(result: Result) {
 
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MatchHandler")
-
     private val db = Db.db
+    private val results: Results = ResultsAdapter().toNonSerializable(result)
 
     fun recieveGameCallback() = runBlocking {
         // Write result to database
@@ -32,7 +36,7 @@ class MatchHandler(private val result: MatchResult) {
     private fun saveResult() {
         logger.info("Saving result...")
         val resultQueries = db.resultQueries
-        logger.info(resultQueries.selectAll().executeAsList().toString())
+        resultQueries.insertResult(results)
     }
 
     private fun updateGame() {
@@ -41,11 +45,17 @@ class MatchHandler(private val result: MatchResult) {
         logger.info(gameQueries.selectAll().executeAsList().toString())
     }
 
-    private suspend fun updateSeries() {
-        logger.info("Updating series id #${result.metaData.series_id}")
+    private fun updateSeries() {
+        logger.info("Updating series...")
+//        val metaData = Json.decodeFromString<ResultMetaData>(result.meta_data)
+//        logger.debug("Metadata: $metaData")
     }
 
-    private suspend fun updateStandings() {
+    private fun updateStandings() {
+        // Fetch series row
+        // Check if a team has won (Bo3, Bo5)
+        // If a team won, update standings
         logger.info("Updating standings...")
+
     }
 }

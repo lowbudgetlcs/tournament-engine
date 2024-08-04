@@ -14,3 +14,7 @@ CREATE TABLE results (
 selectAll:
 SELECT *
 FROM results;
+
+insertResult:
+INSERT INTO results
+VALUES ?;
