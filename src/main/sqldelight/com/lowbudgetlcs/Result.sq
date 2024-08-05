@@ -6,7 +6,7 @@ CREATE TABLE results (
   game_id INT,
   game_name VARCHAR(60),
   game_type VARCHAR(20),
-  game_map VARCHAR(20),
+  game_map INT,
   game_mode VARCHAR(20),
   region VARCHAR(20)
 );
@@ -17,4 +17,4 @@ FROM results;
 
 insertResult:
 INSERT INTO results
-VALUES ?;
+VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?);

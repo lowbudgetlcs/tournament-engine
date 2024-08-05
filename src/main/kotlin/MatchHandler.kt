@@ -1,18 +1,17 @@
 package com.lowbudgetlcs
 
+import com.lowbudgetlcs.data.Result
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
-import com.lowbudgetlcs.data.Result
-import com.lowbudgetlcs.data.ResultsAdapter
 
-class MatchHandler(result: Result) {
+class MatchHandler(private val result: Result) {
 
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MatchHandler")
     private val db = Db.db
-    private val results: Results = ResultsAdapter().toNonSerializable(result)
 
     fun recieveGameCallback() = runBlocking {
         // Write result to database
@@ -33,10 +32,23 @@ class MatchHandler(result: Result) {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private fun saveResult() {
         logger.info("Saving result...")
         val resultQueries = db.resultQueries
-        resultQueries.insertResult(results)
+        val meta = Json.encodeToString(result.metaData)
+        resultQueries.insertResult(
+            result.startTime,
+            result.shortCode,
+            meta,
+            result.gameId,
+            result.gameName,
+            result.gameType,
+            result.gameMap,
+            result.gameMode,
+            result.region
+        )
+        logger.info("Result saved!")
     }
 
     private fun updateGame() {

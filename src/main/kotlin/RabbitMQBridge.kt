@@ -39,7 +39,7 @@ object RabbitMQBridge {
                 val message = String(delivery.body, charset("UTF-8"))
                 try {
                     val result = Json.decodeFromString<Result>(message)
-                    logger.info("Recieved result on queue.")
+                    logger.info(result.toString())
                     MatchHandler(result).recieveGameCallback()
                 } catch (e: Exception) {
                     logger.error("Error occured while parsing match result")
