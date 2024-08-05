@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd docker/lblcs/"${{ env.APP }}"
+            cd docker/lblcs/${{ env.APP }}
             echo POSTGRES_URL="${{ secrets.POSTGRES_URL }}" > .env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
             echo POSTGRES_PW="${{ secrets.POSTGRES_PW }}" >> .env
