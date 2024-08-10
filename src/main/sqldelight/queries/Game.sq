@@ -1,0 +1,29 @@
+selectAll:
+  SELECT *
+  FROM games;
+
+selectIdBySeriesGameNum:
+  SELECT id
+  FROM games
+  WHERE series_id = ? AND game_num = ?;
+
+updateGameResult:
+  UPDATE games
+  SET result_id = ?
+  WHERE id = ?;
+
+updateGameOutcome:
+  UPDATE games
+  SET winner_id = ?, loser_id = ?
+  WHERE id = ?
+  RETURNING id;
+
+countWinningGames:
+  SELECT COUNT(*)
+  FROM games
+  WHERE series_id = ? AND winner_id = ?;
+
+insert:
+  INSERT INTO games(short_code, winner_id, loser_id, series_id, result_id, game_num)
+  VALUES ?;
+

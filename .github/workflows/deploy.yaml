@@ -71,6 +71,7 @@ jobs:
             echo POSTGRES_URL="${{ secrets.POSTGRES_URL }}" > .env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
             echo POSTGRES_PW="${{ secrets.POSTGRES_PW }}" >> .env
+            echo RIOT_API_TOKEN="${{ secrets.RIOT_API_TOKEN }}" >> .env
             docker-compose down
             docker-compose pull
             docker-compose up -d

@@ -7,7 +7,7 @@ data class Result(
     val startTime: Long?,
     val shortCode: String,
     val metaData: MetaData,
-    val gameId: Int?,
+    val gameId: Long,
     val gameName: String?,
     val gameType: String?,
     val gameMap: Int?,
