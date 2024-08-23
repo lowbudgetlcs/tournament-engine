@@ -2,10 +2,10 @@ selectAll:
   SELECT *
   FROM games;
 
-selectIdBySeriesGameNum:
+selectIdByCode:
   SELECT id
   FROM games
-  WHERE series_id = ? AND game_num = ?;
+  WHERE short_code = ?;
 
 updateGameResult:
   UPDATE games
@@ -14,11 +14,10 @@ updateGameResult:
 
 updateGameOutcome:
   UPDATE games
-  SET winner_id = ?, loser_id = ?
-  WHERE id = ?
-  RETURNING id;
+  SET winner_id = ?, loser_id = ?, processed = TRUE
+  WHERE id = ?;
 
-countWinningGames:
+countWinsBySeriesId:
   SELECT COUNT(*)
   FROM games
   WHERE series_id = ? AND winner_id = ?;
