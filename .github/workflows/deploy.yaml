@@ -29,6 +29,7 @@ jobs:
       - name: Build the Docker image
         run: |
           docker build -t ${{ env.APP }}:latest .
+          docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:latest
           docker tag ${{ env.APP }}:latest lblcs/${{ env.APP }}:${{ env.VERSION }}
 
       - name: Login to DockerHub
