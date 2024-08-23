@@ -41,7 +41,7 @@ object RabbitMQBridge {
                     logger.info("[x] Recieved data on [callback] topic.")
                     val message = String(delivery.body, charset("UTF-8"))
                     val result = Json.decodeFromString<Result>(message)
-                    logger.debug("Result: {}", result.toString())
+                    logger.debug("Callback: {}", result.toString())
                     MatchHandler(result).recieveGameCallback()
                 }
                 basicConsume(queue, true, callback) { _ -> }

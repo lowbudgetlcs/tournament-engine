@@ -109,13 +109,12 @@ class MatchHandler(private val result: Result) {
 
     private fun updateStandings() {
         // Recalculate standings for a div:group
-        logger.info("Updating standings...")
+        logger.info("Standings TBI...")
     }
 
     private fun getTeamId(players: List<MatchParticipant>): Int {
         val playerQueries = db.playerQueries
         for (player in players) {
-            logger.debug("Player puuid: {}", player.puuid)
             val teamId = playerQueries.selectTeamId(player.puuid).executeAsOneOrNull()
             teamId?.let {
                 it.team_id?.let { team_id ->
