@@ -1,0 +1,18 @@
+selectAll:
+  SELECT *
+  FROM series;
+
+selectSeriesById:
+  SELECT *
+  FROM series
+  WHERE id = ?;
+
+selectWinConditionById:
+  SELECT win_condition
+  FROM series
+  WHERE id = ?;
+
+updateSeries:
+  UPDATE series
+  SET winner_id = ?
+  WHERE id = ?;

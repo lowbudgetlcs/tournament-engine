@@ -11,7 +11,6 @@ object Db {
             jdbcUrl = System.getenv("POSTGRES_URL")
             username = System.getenv("POSTGRES_USER")
             password = System.getenv("POSTGRES_PW")
-
         }.let { cfg ->
             HikariDataSource(cfg).asJdbcDriver()
         }

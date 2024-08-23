@@ -1,6 +1,6 @@
 services:
   tournament_engine:
-    image: lblcs/tournament_engine:latest
+    build: .
     container_name: tournament_engine
     env_file:
       - .env

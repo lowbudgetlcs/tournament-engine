@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class Result(
     val startTime: Long?,
     val shortCode: String,
-    val metaData: MetaData,
-    val gameId: Int?,
+    val metaData: String,
+    val gameId: Long,
     val gameName: String?,
     val gameType: String?,
     val gameMap: Int?,
