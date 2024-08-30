@@ -12,7 +12,7 @@ object RiotAPIBridge {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.RiotAPIBridge")
 
     private val client by lazy {
-        val creds = APICredentials(System.getenv("RIOT_API_KEY"))
+        val creds = APICredentials(System.getenv("RIOT_API_TOKEN"))
         R4J(creds)
     }
 

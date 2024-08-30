@@ -30,11 +30,12 @@ class MatchHandler(private val result: Result) {
     fun recieveGameCallback() = runBlocking {
         // Write result to database
         launch {
-            val id: Int = saveResult()
-            if (id == -1) cancel()
-            val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-            updateGame(id, match)
-            updateSeries()
+            saveResult().let{ resultId ->
+                if(resultId == -1) cancel()
+                val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+                updateGame(resultId, match)
+                updateSeries()
+            }
             //updateStandings()
         }
     }
