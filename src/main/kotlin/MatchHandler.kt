@@ -2,6 +2,7 @@ package com.lowbudgetlcs
 
 import com.lowbudgetlcs.data.MetaData
 import com.lowbudgetlcs.data.Result
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -16,6 +17,7 @@ class MatchHandler(private val result: Result) {
 
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.MatchHandler")
     private val db = Db.db
+
     @OptIn(ExperimentalSerializationApi::class)
     private val metaData: MetaData = Json.decodeFromString<MetaData>(result.metaData)
     private val seriesId = metaData.seriesId
@@ -29,6 +31,7 @@ class MatchHandler(private val result: Result) {
         // Write result to database
         launch {
             val id: Int = saveResult()
+            if (id == -1) cancel()
             val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
             updateGame(id, match)
             updateSeries()
@@ -41,27 +44,31 @@ class MatchHandler(private val result: Result) {
         logger.info("Saving result to db...")
         val resultQueries = db.resultQueries
         val meta = Json.encodeToString(result.metaData)
-        val resultId = resultQueries.insertResult(
-            result.startTime,
-            result.shortCode,
-            meta,
-            result.gameId,
-            result.gameName,
-            result.gameType,
-            result.gameMap,
-            result.gameMode,
-            result.region
-        ).executeAsOne()
-        logger.info("Result saved!")
-        return resultId
+        try {
+            resultQueries.insertResult(
+                result.startTime,
+                result.shortCode,
+                meta,
+                result.gameId,
+                result.gameName,
+                result.gameType,
+                result.gameMap,
+                result.gameMode,
+                result.region
+            ).executeAsOne().let {
+                logger.info("Result saved!")
+                return it
+            }
+        } catch (e: Throwable) {
+            logger.error(e.message)
+            return -1
+        }
     }
 
     private fun updateGame(resultId: Int, match: LOLMatch) {
         logger.info("Updating game...")
         val gameQueries = db.gameQueries
-        val id =
-            gameQueries.selectIdByCode(code).executeAsOneOrNull()
-        when (id) {
+        when (val id = gameQueries.selectIdByCode(code).executeAsOneOrNull()) {
             null -> {
                 logger.warn("No game found for series '{}' game code '{}'", seriesId, code)
                 return
@@ -69,18 +76,26 @@ class MatchHandler(private val result: Result) {
 
             else -> {
                 logger.debug("Updating game id '{}' result...", id)
-                gameQueries.updateGameResult(
-                    resultId, id
-                )
+                try {
+                    gameQueries.updateGameResult(
+                        resultId, id
+                    )
+                } catch (e: Throwable) {
+                    logger.error(e.message)
+                }
                 logger.debug("Successfully updated game id '{}' result!", id)
                 logger.debug("Updating series id '{}' game id '{}' outcome...", seriesId, id)
                 val (winnerId: Int, loserId: Int) = Pair(
                     getTeamId(match.participants.filter { participant -> participant.didWin() }),
                     getTeamId(match.participants.filter { participant -> !participant.didWin() }),
                 )
-                gameQueries.updateGameOutcome(
-                    winnerId, loserId, id
-                )
+                try {
+                    gameQueries.updateGameOutcome(
+                        winnerId, loserId, id
+                    )
+                } catch (e: Throwable) {
+                    logger.error(e.message)
+                }
                 logger.debug("Succsesfully updated series id '{}' game id '{}'!", seriesId, id)
             }
         }
@@ -94,13 +109,23 @@ class MatchHandler(private val result: Result) {
         val team2Wins = gameQueries.countWinsBySeriesId(series.id, series.team2_id).executeAsOneOrNull() ?: 0
         when (series.win_condition) {
             team1Wins.toInt() -> {
-                seriesQueries.updateSeries(series.team1_id, series.id)
-                logger.info("Successfully updated series!")
+                try {
+                    seriesQueries.updateSeries(series.team1_id, series.id)
+                    logger.info("Successfully updated series!")
+                } catch (e: Throwable) {
+                    logger.error(e.message)
+                }
             }
+
             team2Wins.toInt() -> {
-                seriesQueries.updateSeries(series.team2_id, series.id)
-                logger.info("Successfully updated series!")
+                try {
+                    seriesQueries.updateSeries(series.team2_id, series.id)
+                    logger.info("Successfully updated series!")
+                } catch (e: Throwable) {
+                    logger.error(e.message)
+                }
             }
+
             else -> {
                 logger.info("Series id '{}' not concluded!", seriesId)
             }

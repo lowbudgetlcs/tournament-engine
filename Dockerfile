@@ -6,5 +6,5 @@ RUN gradle shadowJar --no-daemon
 FROM eclipse-temurin:17-jre-alpine
 RUN mkdir /opt/app
 WORKDIR /opt/app
-COPY --from=build /home/gradle/src/build/libs/*.jar tournament_engine.jar
+COPY --from=build /home/gradle/src/build/libs/*-all.jar tournament_engine.jar
 ENTRYPOINT ["java", "-jar", "tournament_engine.jar"]

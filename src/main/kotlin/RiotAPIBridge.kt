@@ -13,7 +13,6 @@ object RiotAPIBridge {
 
     private val client by lazy {
         val creds = APICredentials(System.getenv("RIOT_API_KEY"))
-        logger.info("Key: ${creds.loLAPIKey}")
         R4J(creds)
     }
 
