@@ -1,12 +1,13 @@
 package com.lowbudgetlcs
 
+import com.lowbudgetlcs.data.Result
 import com.rabbitmq.client.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
-import com.lowbudgetlcs.data.*
-import kotlinx.coroutines.*
 
 object RabbitMQBridge {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.RabbitMQBridge")
@@ -32,20 +33,20 @@ object RabbitMQBridge {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun listen() = runBlocking {
-        launch {
-            channel.run {
-                val queue = queueDeclare().queue
-                queueBind(queue, EXCHANGE_NAME, "callback")
-                val callback = DeliverCallback { _, delivery: Delivery ->
-                    logger.info("[x] Recieved data on [callback] topic.")
+    fun listen(): String = runBlocking {
+        channel.run {
+            val queue = queueDeclare().queue
+            queueBind(queue, EXCHANGE_NAME, "callback")
+            val callback = DeliverCallback { _, delivery: Delivery ->
+                logger.info("[x] Recieved data on [callback] topic.")
+                launch {
                     val message = String(delivery.body, charset("UTF-8"))
                     val result = Json.decodeFromString<Result>(message)
                     logger.debug("Callback: {}", result.toString())
                     MatchHandler(result).recieveGameCallback()
                 }
-                basicConsume(queue, true, callback) { _ -> }
             }
+            basicConsume(queue, true, callback) { _ -> }
         }
     }
 }

@@ -2,9 +2,6 @@ package com.lowbudgetlcs
 
 import com.lowbudgetlcs.data.MetaData
 import com.lowbudgetlcs.data.Result
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -27,17 +24,14 @@ class MatchHandler(private val result: Result) {
         seriesQueries.selectSeriesById(seriesId).executeAsOne()
     }
 
-    fun recieveGameCallback() = runBlocking {
+    fun recieveGameCallback() {
         // Write result to database
-        launch {
-            saveResult().let{ resultId ->
-                if(resultId == -1) cancel()
-                val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-                updateGame(resultId, match)
-                updateSeries()
-            }
-            //updateStandings()
+        saveResult().let { resultId ->
+            val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+            updateGame(resultId, match)
+            updateSeries()
         }
+        //updateStandings()
     }
 
     @OptIn(ExperimentalSerializationApi::class)
