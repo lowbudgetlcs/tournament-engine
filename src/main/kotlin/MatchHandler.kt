@@ -2,6 +2,8 @@ package com.lowbudgetlcs
 
 import com.lowbudgetlcs.data.MetaData
 import com.lowbudgetlcs.data.Result
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -24,12 +26,14 @@ class MatchHandler(private val result: Result) {
         seriesQueries.selectSeriesById(seriesId).executeAsOne()
     }
 
-    fun recieveGameCallback() {
+    fun recieveGameCallback() = runBlocking {
         // Write result to database
-        saveResult().let { resultId ->
-            val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-            updateGame(resultId, match)
-            updateSeries()
+        launch {
+            saveResult().let { resultId ->
+                val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+                updateGame(resultId, match)
+                updateSeries()
+            }
         }
         //updateStandings()
     }

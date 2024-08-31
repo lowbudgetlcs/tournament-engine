@@ -33,20 +33,20 @@ object RabbitMQBridge {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun listen(): String = runBlocking {
-        channel.run {
-            val queue = queueDeclare().queue
-            queueBind(queue, EXCHANGE_NAME, "callback")
-            val callback = DeliverCallback { _, delivery: Delivery ->
-                logger.info("[x] Recieved data on [callback] topic.")
-                launch {
+    fun listen() = runBlocking {
+        launch {
+            channel.run {
+                val queue = queueDeclare().queue
+                queueBind(queue, EXCHANGE_NAME, "callback")
+                val callback = DeliverCallback { _, delivery: Delivery ->
+                    logger.info("[x] Recieved data on [callback] topic.")
                     val message = String(delivery.body, charset("UTF-8"))
                     val result = Json.decodeFromString<Result>(message)
                     logger.debug("Callback: {}", result.toString())
                     MatchHandler(result).recieveGameCallback()
                 }
+                basicConsume(queue, true, callback) { _ -> }
             }
-            basicConsume(queue, true, callback) { _ -> }
         }
     }
 }
