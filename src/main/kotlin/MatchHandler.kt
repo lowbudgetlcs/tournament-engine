@@ -29,12 +29,17 @@ class MatchHandler(private val result: Result) {
     fun recieveGameCallback() = runBlocking {
         // Write result to database
         launch {
-            db.transaction {
-                saveResult().let { resultId ->
-                    val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-                    updateGame(resultId, match)
-                    updateSeries()
+            try {
+                db.transaction {
+                    saveResult().let { resultId ->
+                        val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+                        updateGame(resultId, match)
+                        updateSeries()
+                    }
                 }
+            } catch (e: Throwable) {
+                logger.error("Transaction failed.")
+                logger.error(e.message)
             }
         }
         //updateStandings()
@@ -45,24 +50,19 @@ class MatchHandler(private val result: Result) {
         logger.info("Saving result to db...")
         val resultQueries = db.resultQueries
         val meta = Json.encodeToString(result.metaData)
-        try {
-            resultQueries.insertResult(
-                result.startTime,
-                result.shortCode,
-                meta,
-                result.gameId,
-                result.gameName,
-                result.gameType,
-                result.gameMap,
-                result.gameMode,
-                result.region
-            ).executeAsOne().let {
-                logger.info("Result saved!")
-                return it
-            }
-        } catch (e: Throwable) {
-            logger.error(e.message)
-            return -1
+        resultQueries.insertResult(
+            result.startTime,
+            result.shortCode,
+            meta,
+            result.gameId,
+            result.gameName,
+            result.gameType,
+            result.gameMap,
+            result.gameMode,
+            result.region
+        ).executeAsOne().let {
+            logger.info("Result saved!")
+            return it
         }
     }
 
@@ -77,26 +77,18 @@ class MatchHandler(private val result: Result) {
 
             else -> {
                 logger.debug("Updating game id '{}' result...", id)
-                try {
-                    gameQueries.updateGameResult(
-                        resultId, id
-                    )
-                } catch (e: Throwable) {
-                    logger.error(e.message)
-                }
+                gameQueries.updateGameResult(
+                    resultId, id
+                )
                 logger.debug("Successfully updated game id '{}' result!", id)
                 logger.debug("Updating series id '{}' game id '{}' outcome...", seriesId, id)
                 val (winnerId: Int, loserId: Int) = Pair(
                     getTeamId(match.participants.filter { participant -> participant.didWin() }),
                     getTeamId(match.participants.filter { participant -> !participant.didWin() }),
                 )
-                try {
-                    gameQueries.updateGameOutcome(
-                        winnerId, loserId, id
-                    )
-                } catch (e: Throwable) {
-                    logger.error(e.message)
-                }
+                gameQueries.updateGameOutcome(
+                    winnerId, loserId, id
+                )
                 logger.debug("Succsesfully updated series id '{}' game id '{}'!", seriesId, id)
             }
         }
@@ -110,21 +102,13 @@ class MatchHandler(private val result: Result) {
         val team2Wins = gameQueries.countWinsBySeriesId(series.id, series.team2_id).executeAsOneOrNull() ?: 0
         when (series.win_condition) {
             team1Wins.toInt() -> {
-                try {
-                    seriesQueries.updateSeries(series.team1_id, series.id)
-                    logger.info("Successfully updated series!")
-                } catch (e: Throwable) {
-                    logger.error(e.message)
-                }
+                seriesQueries.updateSeries(series.team1_id, series.id)
+                logger.info("Successfully updated series!")
             }
 
             team2Wins.toInt() -> {
-                try {
-                    seriesQueries.updateSeries(series.team2_id, series.id)
-                    logger.info("Successfully updated series!")
-                } catch (e: Throwable) {
-                    logger.error(e.message)
-                }
+                seriesQueries.updateSeries(series.team2_id, series.id)
+                logger.info("Successfully updated series!")
             }
 
             else -> {
