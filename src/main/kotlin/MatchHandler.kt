@@ -29,10 +29,12 @@ class MatchHandler(private val result: Result) {
     fun recieveGameCallback() = runBlocking {
         // Write result to database
         launch {
-            saveResult().let { resultId ->
-                val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-                updateGame(resultId, match)
-                updateSeries()
+            db.transaction {
+                saveResult().let { resultId ->
+                    val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+                    updateGame(resultId, match)
+                    updateSeries()
+                }
             }
         }
         //updateStandings()
