@@ -5,6 +5,7 @@ import com.rabbitmq.client.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -41,9 +42,15 @@ object RabbitMQBridge {
                 val callback = DeliverCallback { _, delivery: Delivery ->
                     logger.info("[x] Recieved data on [callback] topic.")
                     val message = String(delivery.body, charset("UTF-8"))
-                    val result = Json.decodeFromString<Result>(message)
-                    logger.debug("Callback: {}", result.toString())
-                    MatchHandler(result).recieveGameCallback()
+                    try {
+                        val result = Json.decodeFromString<Result>(message)
+                        logger.debug("Callback: {}", result.toString())
+                        MatchHandler(result).recieveGameCallback()
+                    } catch (e: SerializationException) {
+                        logger.warn("SerializationException occured while decoding message body.")
+                    } catch (e: IllegalArgumentException) {
+                        logger.warn("Illegal message body provided: {}", message)
+                    }
                 }
                 basicConsume(queue, true, callback) { _ -> }
             }

@@ -9,5 +9,4 @@
     </root>
     <logger name="com.rabbitmq" level="INFO"/>
     <logger name="com.zaxxer" level="INFO"/>
-    <logger name="com.github.stelar7" level="INFO"/>
 </configuration>
