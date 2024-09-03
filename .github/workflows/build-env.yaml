@@ -13,8 +13,9 @@ jobs:
         run: |
           touch ./.env.art
           VER=$(cat VERSION)
-          echo "VERSION=$VER" >> ./.env.art
+          echo "VERSION=$VER" > ./.env.art
           echo "APP=tournament_engine" >> ./.env.art
+          cat ./.env.art
 
       - name: Upload env artifact
         uses: actions/upload-artifact@v4
