@@ -11,7 +11,7 @@ jobs:
       - name: Build env file
         shell: bash
         run: |
-          touch ./.env
+          touch ./.env.art
           VER=$(cat VERSION)
           echo "VERSION=$VER" >> ./.env.art
           echo "APP=tournament_engine" >> ./.env.art
