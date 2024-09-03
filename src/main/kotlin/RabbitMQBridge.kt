@@ -50,6 +50,8 @@ object RabbitMQBridge {
                         logger.warn("SerializationException occured while decoding message body.")
                     } catch (e: IllegalArgumentException) {
                         logger.warn("Illegal message body provided: {}", message)
+                    } catch (e: Throwable) {
+                        logger.error(e.message)
                     }
                 }
                 basicConsume(queue, true, callback) { _ -> }

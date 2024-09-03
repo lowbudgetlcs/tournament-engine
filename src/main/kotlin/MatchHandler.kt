@@ -5,6 +5,7 @@ import com.lowbudgetlcs.data.Result
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -18,7 +19,19 @@ class MatchHandler(private val result: Result) {
     private val db = Db.db
 
     @OptIn(ExperimentalSerializationApi::class)
-    private val metaData: MetaData = Json.decodeFromString<MetaData>(result.metaData)
+    private val metaData: MetaData by lazy {
+        try {
+            Json.decodeFromString<MetaData>(result.metaData)
+        } catch (e: SerializationException) {
+            logger.warn("Caught SerializationException while parsing MetaData: {}", result.toString())
+            val seriesId = db.gameQueries.selectIdByCode(result.shortCode).executeAsOneOrNull()
+            seriesId?.let {
+                logger.warn("Successfully fetched seriesId.")
+                return@lazy MetaData(seriesId = it, gameNum = 0)
+            }
+            throw Throwable("Recieved bad callback, no series with this code: ${result.shortCode}")
+        }
+    }
     private val seriesId = metaData.seriesId
     private val code = result.shortCode
     private val series by lazy {
