@@ -37,7 +37,7 @@ sqldelight {
 dependencies {
     implementation("com.rabbitmq:amqp-client:5.21.0")
 
-    implementation("com.github.stelar7:R4J:master")
+    implementation("com.github.stelar7:R4J:2.5.4")
 
     implementation("app.cash.sqldelight:jdbc-driver:2.0.2")
     implementation("com.zaxxer:HikariCP:5.1.0")
